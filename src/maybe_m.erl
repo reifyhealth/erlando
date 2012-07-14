@@ -17,10 +17,10 @@
 -module(maybe_m).
 -author('Joseph Abrahamson <me@jspha.com>').
 
--export([just/1, nothing/0]).
 -export_type([t/1]).
--export([okjust/1]).
--export([default/2, then/2]).
+-export([just/1, nothing/0]).
+-export([okjust/1, justok/1]).
+-export([default/2]).
 
 -behaviour(monad).
 -export(['>>='/2, return/1, fail/1]).
@@ -30,7 +30,7 @@
 
 
 -type(t(A) :: {'just', A} | nothing).
-%% The quintessential Maybe (maybe:t) type. It can be deconstructed
+%% The quintessential Maybe (maybe_m:t) type. It can be deconstructed
 %% manually in a pattern matching bind, but also other functions
 %% exposed here will help to manipulate it.
 
@@ -39,14 +39,10 @@
 -include("monad_plus_specs.hrl").
 
 
--spec
 %% @doc Wraps an object into a Maybe type.
-just(_) -> {just, _}.
 just(X) -> {just, X}.
 
--spec
 %% @doc Wraps a "failure" into a Maybe type.
-nothing() -> nothing.
 nothing() -> nothing.
 
 
@@ -61,6 +57,8 @@ okjust({ok, X}) -> just(X);
 okjust({ok, X, _Info}) -> just(X);
 okjust(_Else) -> nothing().
 
+justok({just, X}) -> {ok, X};
+justok(nothing) -> {error, nothing}.
 
 %% Handlers
 
@@ -70,15 +68,10 @@ default(Maybe :: t(T), Default :: T) -> T.
 default({just, X}, _) -> X;
 default(nothing, X) -> X.
 
--spec 
-then(Maybe :: t(T), fun((T) -> t(O))) -> t(O).
-then({just, X}, Fn) -> Fn(X);
-then(nothing, _) -> nothing.
-
-
 %% Monad interface
 
-'>>='(M, F) -> then(M, F).
+'>>='({just, X}, F) -> F(X);
+'>>='(nothing, _F) -> nothing.
 
 return(X) -> just(X).
 fail(_X)  -> nothing().

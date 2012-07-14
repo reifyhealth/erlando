@@ -17,12 +17,13 @@
 -module(monad).
 
 -export([behaviour_info/1]).
--export([join/2, sequence/2]).
+-export([join/2, sequence/2, fold/4]).
 
 -ifdef(use_specs).
 -type(monad(_A) :: any()). %% urm, don't know what to do here.
 -spec(join/2 :: (atom(), monad(monad(A))) -> monad(A)).
 -spec(sequence/2 :: (atom(), [monad(A)]) -> monad([A])).
+-spec(fold/4 :: (atom(), fun((A, B) -> monad(A)), A, list(B)) -> monad(A)).
 -endif.
 
 -compile({parse_transform, do}).
@@ -46,3 +47,6 @@ sequence(Monad, [], Acc) ->
 sequence(Monad, [X|Xs], Acc) ->
     do([Monad || E <- X,
                  sequence(Monad, Xs, [E|Acc])]).
+
+fold(Monad, _, St, []) -> Monad:return(St);
+fold(Monad, F, St0, [X | Xs]) -> Monad:'>>='(F(X, St0), fun(St1) -> fold(Monad, F, St1, Xs) end).

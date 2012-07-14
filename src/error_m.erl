@@ -19,13 +19,14 @@
 -behaviour(monad).
 -export(['>>='/2, return/1, fail/1]).
 
+-type t(A) :: 'ok' | {'ok', A} | {'error', any()}.
 %% This is really instance (Error e) => Monad (Either e) with 'error'
 %% for Left and 'ok' for Right.
 
--ifdef(use_specs).
--type(monad(A) :: 'ok' | {'ok', A} | {'error', any()}).
+
+-type monad(A) :: t(A).
 -include("monad_specs.hrl").
--endif.
+
 
 '>>='({error, _Err} = Error, _Fun) -> Error;
 '>>='({ok, Result},           Fun) -> Fun(Result);
