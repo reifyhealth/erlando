@@ -23,7 +23,7 @@
 -type(monad(_A) :: any()). %% urm, don't know what to do here.
 -spec(join/2 :: (atom(), monad(monad(A))) -> monad(A)).
 -spec(sequence/2 :: (atom(), [monad(A)]) -> monad([A])).
--spec(fold/4 :: (atom(), fun((A, B) -> monad(A)), A, list(B)) -> monad(A)).
+-spec(fold/4 :: (atom(), fun((B, A) -> monad(A)), A, list(B)) -> monad(A)).
 -endif.
 
 -compile({parse_transform, do}).
